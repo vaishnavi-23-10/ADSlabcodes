@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a Node structure for the doubly linked list
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+};
+
+// Function to create a new Node with given data
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = data;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to insert a new Node at the beginning of the list
+void insertAtBeginning(struct Node** head, int data) {
+    struct Node* newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        newNode->next = *head;
+        (*head)->prev = newNode;
+        *head = newNode;
+    }
+}
+
+// Function to insert a new Node at the end of the list
+void insertAtEnd(struct Node** head, int data) {
+    struct Node* newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        struct Node* temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+        newNode->prev = temp;
+    }
+}
+
+// Function to delete a Node by value
+void deleteByValue(struct Node** head, int data) {
+    if (*head == NULL) {
+        printf("List is empty. Deletion not possible.\n");
+        return;
+    }
+
+    struct Node* temp = *head;
+
+    // Case 1: Node to be deleted is the first node
+    if (temp->data == data) {
+        *head = temp->next;
+        if (*head != NULL) {
+            (*head)->prev = NULL;
+        }
+        free(temp);
+        return;
+    }
+
+    // Traverse the list to find the node to be deleted
+    while (temp != NULL && temp->data != data) {
+        temp = temp->next;
+    }
+
+    // Case 2: Node to be deleted is in the middle or end
+    if (temp != NULL) {
+        temp->prev->next = temp->next;
+        if (temp->next != NULL) {
+            temp->next->prev = temp->prev;
+        }
+        free(temp);
+    } else {
+        printf("Node with data %d not found.\n", data);
+    }
+}
+
+// Function to print the doubly linked list
+void printList(struct Node* head) {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    printf("NULL <-> ");
+    while (head->next != NULL) {
+        printf("%d <-> ", head->data);
+        head = head->next;
+    }
+    printf("%d <-> NULL\n", head->data);
+}
+
+// Function to free memory allocated for the doubly linked list
+void freeList(struct Node* head) {
+    struct Node* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+int main() {
+    struct Node* head = NULL;
+    int choice, data;
+
+    do {
+        printf("\nDoubly Linked List Operations:\n");
+        printf("1. Insert at the beginning\n");
+        printf("2. Insert at the end\n");
+        printf("3. Delete by value\n");
+        printf("4. Print the list\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the data to insert at the beginning: ");
+                scanf("%d", &data);
+                insertAtBeginning(&head, data);
+                break;
+            case 2:
+                printf("Enter the data to insert at the end: ");
+                scanf("%d", &data);
+                insertAtEnd(&head, data);
+                break;
+            case 3:
+                printf("Enter the data to delete: ");
+                scanf("%d", &data);
+                deleteByValue(&head, data);
+                break;
+            case 4:
+                printf("Doubly Linked List: ");
+                printList(head);
+                break;
+            case 5:
+                printf("Exiting the program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+    } while (choice != 5);
+
+    // Free memory allocated for the list
+    freeList(head);
+
+    return 0;
+}
